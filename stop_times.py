@@ -18,41 +18,27 @@ def convert_stop_seq():
     if not os.path.basename(filepath) == 'stop_times.txt':
         print(COLOR_RED + "Incorrect file input! Please input stop_times.txt" + COLOR_RESET)
         exit()
-    stopseq_map = make_stopseq_map(filepath)
-    make_new_file(filepath, stopseq_map)
+    make_new_file(filepath)
 
-def make_stopseq_map(filepath):
-    stop_seq_map = {}
-    with open(filepath, "rb") as stop_times_file_raw:
-        stop_times_txt = io.TextIOWrapper(stop_times_file_raw)
-        stop_times_csv = csv.DictReader(stop_times_txt)
-        for row in stop_times_csv:
-            if "stop_sequence" not in row or not row["stop_sequence"]:
-                print(COLOR_BLUE + "No stop_sequence values are present and therefore the operation cannot be performed" + COLOR_RESET)
-            subtract_one = int(row["stop_sequence"]) - 1
-            stop_seq_map[row["stop_sequence"]] = subtract_one            
-    return(stop_seq_map)
-
-def make_new_file(filepath, stopseq_map, field_names=["stop_sequence"]):
+def make_new_file(filepath):
     with open(filepath, "rb") as file_raw:
         stop_times_txt = io.TextIOWrapper(file_raw)
-        csvfile = csv.DictReader(stop_times_txt)
+        csv_file = csv.DictReader(stop_times_txt)
+        csv_list = list(csv_file)
+        for row in csv_list:
+            if "stop_sequence" not in row or not row["stop_sequence"]:
+                print(COLOR_BLUE + "No stop_sequence values are present and therefore the operation cannot be performed" + COLOR_RESET)
+                return
         file_name = 'stop_times2.txt'
         if os.path.exists(file_name):
             print(COLOR_RED + "File with name " + file_name + " already exists in directory; cannot create a new one. Move this file and try again. Skipping..." + COLOR_RESET)
             return
         new_file = open(file_name, "w")
-        new_csv_writer = csv.DictWriter(new_file, fieldnames=csvfile.fieldnames)
+        new_csv_writer = csv.DictWriter(new_file, fieldnames=csv_file.fieldnames)
         new_csv_writer.writeheader()
-        for row in csvfile:
-            row_copy = row.copy()
-            for field_name in field_names:
-                if row[field_name] not in stopseq_map:
-                    print(COLOR_BLUE + "Invalid field name " + field_name + " for file " + file_name + ", skipping this file" + COLOR_RESET)
-                    return
-                found_stop_seq = row_copy[field_name]
-                row_copy[field_name] = stopseq_map[found_stop_seq] if found_stop_seq in stopseq_map else found_stop_seq
-            new_csv_writer.writerow(row_copy)
+        for row in csv_list:
+            row["stop_sequence"] = int(row["stop_sequence"]) - 1
+            new_csv_writer.writerow(row)
         new_file.close()
         print(COLOR_GREEN + "Exported " + file_name + " with stop_sequence reduced by 1" + COLOR_RESET)
 
