@@ -32,7 +32,7 @@ def make_new_file(filepath):
             if not row["stop_sequence"]:
                 print(COLOR_RED + "Missing stop_sequence value(s). The operation cannot be performed." + COLOR_RESET)
                 return
-        file_name = "stop_times2.txt"
+        file_name = "stop_times_syncro.txt"
         if os.path.exists(file_name):
             print(COLOR_RED + "File with name " + file_name + " already exists in directory; cannot create a new one. Move this file and try again." + COLOR_RESET)
             return
