@@ -15,9 +15,6 @@ def convert_stop_seq():
     if not os.path.isfile(filepath):
         print(COLOR_RED + "Input is not a file! Please input stop_times.txt." + COLOR_RESET)
         exit()
-    if not os.path.basename(filepath) == "stop_times.txt":
-        print(COLOR_RED + "Incorrect file input! Please input stop_times.txt" + COLOR_RESET)
-        exit()
     make_new_file(filepath)
 
 def make_new_file(filepath):
@@ -25,12 +22,12 @@ def make_new_file(filepath):
         stop_times_txt = io.TextIOWrapper(file_raw)
         csv_file = csv.DictReader(stop_times_txt)
         csv_list = list(csv_file)
+        if "stop_sequence" not in csv_file.fieldnames:
+            print(COLOR_RED + "No stop_sequence column detected. The operation cannot be performed." + COLOR_RESET)
+            return
         for row in csv_list:
-            if "stop_sequence" not in row:
-                print(COLOR_RED + "No stop_sequence column detected. The operation cannot be performed." + COLOR_RESET)
-                return
             if not row["stop_sequence"]:
-                print(COLOR_RED + "Missing stop_sequence value(s). The operation cannot be performed." + COLOR_RESET)
+                print(COLOR_RED + "Input file missing stop_sequence value(s). The operation cannot be performed." + COLOR_RESET)
                 return
         file_name = "stop_times_syncro.txt"
         if os.path.exists(file_name):
